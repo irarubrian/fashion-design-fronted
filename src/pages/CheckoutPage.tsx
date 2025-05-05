@@ -1,25 +1,45 @@
-import React, { useState } from 'react';
-import { useCart } from '../context/CartContext';
-import { Link } from 'react-router-dom';
-import DeliveryTrackingMap from '../components/DeliveryTrackingMap';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client"
 
-type DeliveryStatus = 'processing' | 'shipped' | 'out-for-delivery' | 'delivered';
+import type React from "react"
+import { useState } from "react"
+import { useCart } from "../context/CartContext"
+import { Link } from "react-router-dom"
+import DeliveryTrackingMap from "../components/DeliveryTrackingMap"
+
+type DeliveryStatus = "processing" | "shipped" | "out-for-delivery" | "delivered"
 
 const CheckoutPage: React.FC = () => {
-  const { state } = useCart();
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>('processing');
+  const { state } = useCart()
+  const [orderPlaced, setOrderPlaced] = useState(false)
+  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>("processing")
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card")
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentComplete, setPaymentComplete] = useState(false)
 
-  // Simulate order placement
   const handlePlaceOrder = () => {
-    setOrderPlaced(true);
-    setDeliveryStatus('processing');
+    
+    setShowPaymentModal(true)
+  }
 
-    // Simulate order status updates
-    setTimeout(() => setDeliveryStatus('shipped'), 3000);
-    setTimeout(() => setDeliveryStatus('out-for-delivery'), 6000);
-    setTimeout(() => setDeliveryStatus('delivered'), 9000);
-  };
+  const completeOrder = () => {
+    setShowPaymentModal(false)
+    setPaymentComplete(true)
+    setOrderPlaced(true)
+    setDeliveryStatus("processing")
+
+    
+    const deliveryDate = new Date(2025, 4, 8) // May 8, 2025
+
+    
+    setTimeout(() => setDeliveryStatus("shipped"), 20000) // 20 seconds
+    setTimeout(() => setDeliveryStatus("out-for-delivery"), 40000) // 40 seconds
+    setTimeout(() => setDeliveryStatus("delivered"), 180000) // 3 minutes
+  }
+
+  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedPaymentMethod(e.target.id)
+  }
 
   if (state.items.length === 0 && !orderPlaced) {
     return (
@@ -27,15 +47,12 @@ const CheckoutPage: React.FC = () => {
         <div className="text-center py-12">
           <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
           <p className="mb-6">Add some items to your cart before checking out.</p>
-          <Link
-            to="/"
-            className="px-6 py-3 bg-burgundy-600 text-white rounded-md hover:bg-burgundy-700 transition-colors"
-          >
+          <Link to="/" className="px-6 py-3 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors">
             Continue Shopping
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -54,42 +71,42 @@ const CheckoutPage: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                     <input
                       type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
                       type="email"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input
                       type="tel"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                     <input
                       type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
                     <input
                       type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
                     <input
                       type="text"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-burgundy-500 focus:border-burgundy-500"
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                 </form>
@@ -103,10 +120,16 @@ const CheckoutPage: React.FC = () => {
                       id="card"
                       name="payment"
                       type="radio"
-                      className="h-4 w-4 text-burgundy-600 focus:ring-burgundy-500 border-gray-300"
-                      defaultChecked
+                      className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300"
+                      checked={selectedPaymentMethod === "card"}
+                      onChange={handlePaymentMethodChange}
                     />
-                    <label htmlFor="card" className="ml-3 block text-sm font-medium text-gray-700">
+                    <label htmlFor="card" className="ml-3 flex items-center text-sm font-medium text-gray-700">
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/512/179/179457.png"
+                        alt="Credit Card"
+                        className="h-6 w-auto mr-2"
+                      />
                       Credit Card
                     </label>
                   </div>
@@ -115,10 +138,35 @@ const CheckoutPage: React.FC = () => {
                       id="paypal"
                       name="payment"
                       type="radio"
-                      className="h-4 w-4 text-burgundy-600 focus:ring-burgundy-500 border-gray-300"
+                      className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300"
+                      checked={selectedPaymentMethod === "paypal"}
+                      onChange={handlePaymentMethodChange}
                     />
-                    <label htmlFor="paypal" className="ml-3 block text-sm font-medium text-gray-700">
+                    <label htmlFor="paypal" className="ml-3 flex items-center text-sm font-medium text-gray-700">
+                      <img
+                        src="https://cdn-icons-png.flaticon.com/512/174/174861.png"
+                        alt="PayPal"
+                        className="h-6 w-auto mr-2"
+                      />
                       PayPal
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      id="mpesa"
+                      name="payment"
+                      type="radio"
+                      className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300"
+                      checked={selectedPaymentMethod === "mpesa"}
+                      onChange={handlePaymentMethodChange}
+                    />
+                    <label htmlFor="mpesa" className="ml-3 flex items-center text-sm font-medium text-gray-700">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1200px-M-PESA_LOGO-01.svg.png"
+                        alt="M-PESA"
+                        className="h-6 w-auto mr-2"
+                      />
+                      M-PESA
                     </label>
                   </div>
                 </div>
@@ -129,7 +177,9 @@ const CheckoutPage: React.FC = () => {
               <div className="text-center py-4">
                 <h2 className="text-xl font-medium mb-2">Thank you for your order!</h2>
                 <p className="text-gray-600 mb-4">Your order has been placed and is being processed.</p>
-                <p className="text-gray-600">Order #: <span className="font-medium">ELG-{Math.floor(Math.random() * 10000)}</span></p>
+                <p className="text-gray-600">
+                  Order #: <span className="font-medium">ELG-{Math.floor(Math.random() * 10000)}</span>
+                </p>
               </div>
 
               {/* Delivery Tracking Map */}
@@ -153,7 +203,7 @@ const CheckoutPage: React.FC = () => {
                     <li key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="py-3 flex">
                       <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                         <img
-                          src={item.image}
+                          src={item.image || "/placeholder.svg"}
                           alt={item.name}
                           className="h-full w-full object-cover object-center"
                         />
@@ -166,7 +216,7 @@ const CheckoutPage: React.FC = () => {
                           </div>
                           <p className="mt-1 text-xs text-gray-500">
                             {item.selectedSize && `Size: ${item.selectedSize}`}
-                            {item.selectedColor && item.selectedSize && ' | '}
+                            {item.selectedColor && item.selectedSize && " | "}
                             {item.selectedColor && `Color: ${item.selectedColor}`}
                           </p>
                         </div>
@@ -195,21 +245,21 @@ const CheckoutPage: React.FC = () => {
               </div>
               <div className="flex justify-between text-base font-medium mt-4 pt-4 border-t border-gray-200">
                 <p>Total</p>
-                <p>${(state.totalPrice + 5.99 + (state.totalPrice * 0.08)).toFixed(2)}</p>
+                <p>${(state.totalPrice + 5.99 + state.totalPrice * 0.08).toFixed(2)}</p>
               </div>
             </div>
 
             {!orderPlaced ? (
               <button
                 onClick={handlePlaceOrder}
-                className="w-full mt-6 bg-burgundy-600 text-white py-3 px-4 rounded-md hover:bg-burgundy-700 transition-colors"
+                className="w-full mt-6 bg-gray-700 text-white py-3 px-4 rounded-md hover:bg-gray-600 transition-colors"
               >
                 Place Order
               </button>
             ) : (
               <Link
                 to="/"
-                className="w-full mt-6 block text-center bg-burgundy-600 text-white py-3 px-4 rounded-md hover:bg-burgundy-700 transition-colors"
+                className="w-full mt-6 block text-center bg-gray-700 text-white py-3 px-4 rounded-md hover:bg-gray-600 transition-colors"
               >
                 Continue Shopping
               </Link>
@@ -217,8 +267,109 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default CheckoutPage;
+      {/* Payment Modals */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            {selectedPaymentMethod === "card" && (
+              <div>
+                <h3 className="text-xl font-medium mb-4">Enter Credit Card Details</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                    <input
+                      type="text"
+                      placeholder="1234 5678 9012 3456"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                      <input type="text" placeholder="MM/YY" className="w-full p-2 border border-gray-300 rounded-md" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                      <input type="text" placeholder="123" className="w-full p-2 border border-gray-300 rounded-md" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                    <input
+                      type="text"
+                      placeholder="John Doe"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPaymentMethod === "paypal" && (
+              <div>
+                <h3 className="text-xl font-medium mb-4">PayPal Checkout</h3>
+                <div className="text-center mb-4">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/174/174861.png"
+                    alt="PayPal"
+                    className="h-16 mx-auto mb-4"
+                  />
+                  <p className="text-gray-600">You will be redirected to PayPal to complete your payment.</p>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">PayPal Email</label>
+                    <input
+                      type="email"
+                      placeholder="email@example.com"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPaymentMethod === "mpesa" && (
+              <div>
+                <h3 className="text-xl font-medium mb-4">M-PESA Payment</h3>
+                <div className="text-center mb-4">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1200px-M-PESA_LOGO-01.svg.png"
+                    alt="M-PESA"
+                    className="h-16 mx-auto mb-4"
+                  />
+                  <p className="text-gray-600">Enter your M-PESA details to complete payment.</p>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input
+                      type="tel"
+                      placeholder="254 7XX XXX XXX"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button onClick={completeOrder} className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600">
+                Complete Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default CheckoutPage

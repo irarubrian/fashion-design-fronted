@@ -523,7 +523,7 @@ const newAccessories: Product[] = [
   },
   {
     id: 35,
-    name: "Designer Sunglasses",
+    name: "Nike Cap",
     price: 149.99,
     originalPrice: 189.99,
     image: "https://i.pinimg.com/736x/c9/85/a1/c985a1e642d251654975805d2e7873f1.jpg",
@@ -561,7 +561,7 @@ const newAccessories: Product[] = [
   },
   {
     id: 42,
-    name: "Luxury Hair Accessories Set",
+    name: "Neck chain",
     price: 59.99,
     image: "https://i.pinimg.com/736x/9f/5a/2d/9f5a2d6e867d266141047e160a550b8e.jpg",
     category: "accessories",
