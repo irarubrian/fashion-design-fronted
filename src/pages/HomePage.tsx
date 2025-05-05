@@ -28,45 +28,15 @@ const HomePage: React.FC = () => {
               "url(https://images.pexels.com/photos/5442447/pexels-photo-5442447.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)",
           }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-
-          {/* Animated background elements */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            {/* Floating fabric element 1 */}
-            <div className="absolute w-64 h-64 rounded-full bg-white opacity-5 -top-20 -left-20 animate-float-slow"></div>
-
-            {/* Floating fabric element 2 */}
-            <div className="absolute w-96 h-96 rounded-full bg-white opacity-5 bottom-10 -right-20 animate-float-medium"></div>
-
-            {/* Floating fabric element 3 */}
-            <div className="absolute w-40 h-40 rounded-full bg-white opacity-5 top-1/3 right-1/4 animate-float-fast"></div>
-
-            {/* Subtle light beam */}
-            <div className="absolute w-full h-full bg-gradient-to-tr from-transparent via-white to-transparent opacity-5 animate-pulse-slow"></div>
-
-            {/* New animated elements */}
-            <div className="absolute w-72 h-72 rounded-full bg-white opacity-5 top-1/2 left-1/4 animate-spin-slow"></div>
-
-            <div className="absolute w-32 h-32 rounded-full bg-white opacity-5 bottom-1/4 left-1/3 animate-wave"></div>
-
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent bg-[length:200%_100%] opacity-10 animate-shimmer"></div>
-
-            {/* Additional floating elements */}
-            <div className="absolute w-20 h-20 rounded-full bg-white opacity-10 top-1/4 left-2/3 animate-fade-in-out"></div>
-            <div className="absolute w-16 h-16 rounded-full bg-white opacity-10 bottom-1/3 right-1/3 animate-float-fast"></div>
-          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-75"></div>
         </div>
 
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center">
           <div className="max-w-2xl text-center">
-            <div className="mb-6 relative">
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white text-glow animate-pulse-slow">
-                Elevate Your Style Today
-              </h1>
-              <div className="absolute -inset-1 blur-sm bg-white opacity-20 -z-10"></div>
+            <div className="mb-6">
+              <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white">Elevate Your Style Today</h1>
             </div>
-            <p className="text-2xl mb-10 text-white font-medium text-shadow-dark animate-pulse-slow">
+            <p className="text-2xl mb-10 text-white font-medium">
               Discover our new collection that redefines modern{" "}
               <span className="text-silver font-semibold">ELEGANCE</span>.
             </p>
