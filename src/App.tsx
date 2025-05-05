@@ -7,6 +7,8 @@ import HomePage from './pages/HomePage';
 import ProductPage from './pages/ProductPage';
 import CategoryPage from './pages/CategoryPage';
 import WishlistPage from './pages/WishlistPage';
+import CheckoutPage from './pages/CheckoutPage';
+import SearchPage from './pages/SearchPage';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { AuthProvider } from './context/AuthContext';
@@ -29,6 +31,8 @@ function App() {
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path="/category/:category" element={<CategoryPage />} />
                 <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/search" element={<SearchPage />} />
                 {/* Additional routes can be added as needed */}
               </Routes>
             </main>

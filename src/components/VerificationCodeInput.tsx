@@ -17,9 +17,9 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | undefined;
+    let intervalId: NodeJS.Timeout;
     if (countdown > 0 && !canResend) {
-      timeoutId = setInterval(() => {
+      intervalId = setInterval(() => {
         setCountdown(prev => prev - 1);
       }, 1000);
     } else {
@@ -27,7 +27,7 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     }
 
     return () => {
-      if (timeoutId) clearInterval(timeoutId);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [countdown, canResend]);
 

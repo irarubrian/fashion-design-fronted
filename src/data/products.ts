@@ -105,16 +105,113 @@ export const getRelatedProducts = (id: number, category: string): Product[] => {
     .slice(0, 4);
 };
 
+// Add more products
+const additionalProducts: Product[] = [
+  {
+    id: 9,
+    name: 'Floral Summer Dress',
+    price: 119.99,
+    image: 'https://images.pexels.com/photos/972995/pexels-photo-972995.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'women',
+    colors: ['Blue', 'Pink', 'Yellow'],
+    sizes: ['XS', 'S', 'M', 'L'],
+    isNew: true,
+    description: 'Light and airy floral dress perfect for summer days. Features a flattering silhouette and breathable fabric.'
+  },
+  {
+    id: 10,
+    name: 'Structured Tote Bag',
+    price: 139.99,
+    originalPrice: 179.99,
+    image: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'accessories',
+    colors: ['Black', 'Beige', 'Red'],
+    sizes: ['One Size'],
+    isFeatured: true,
+    description: 'Spacious structured tote with multiple compartments for organization. Made from durable vegan leather.'
+  },
+  {
+    id: 11,
+    name: 'Linen Blend Shirt',
+    price: 89.99,
+    image: 'https://images.pexels.com/photos/297933/pexels-photo-297933.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'men',
+    colors: ['White', 'Blue', 'Beige'],
+    sizes: ['S', 'M', 'L', 'XL'],
+    isTrending: true,
+    description: 'Breathable linen blend shirt perfect for warm weather. Features a relaxed fit and classic design.'
+  },
+  {
+    id: 12,
+    name: 'Pleated Midi Skirt',
+    price: 99.99,
+    image: 'https://images.pexels.com/photos/1631181/pexels-photo-1631181.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'women',
+    colors: ['Black', 'Navy', 'Burgundy'],
+    sizes: ['XS', 'S', 'M', 'L'],
+    isFeatured: true,
+    description: 'Elegant pleated midi skirt that transitions seamlessly from office to evening. Features a comfortable elastic waistband.'
+  },
+  {
+    id: 13,
+    name: 'Leather Ankle Boots',
+    price: 189.99,
+    originalPrice: 229.99,
+    image: 'https://images.pexels.com/photos/267242/pexels-photo-267242.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'women',
+    colors: ['Black', 'Brown', 'Tan'],
+    sizes: ['36', '37', '38', '39', '40', '41'],
+    isTrending: true,
+    description: 'Classic leather ankle boots with a comfortable block heel. Versatile style that complements any outfit.'
+  },
+  {
+    id: 14,
+    name: 'Graphic Print T-Shirt',
+    price: 49.99,
+    image: 'https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'men',
+    colors: ['White', 'Black', 'Grey'],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    isNew: true,
+    description: 'Soft cotton t-shirt featuring an exclusive graphic print. Perfect for casual everyday wear.'
+  },
+  {
+    id: 15,
+    name: 'Wide Leg Trousers',
+    price: 129.99,
+    image: 'https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'women',
+    colors: ['Black', 'Camel', 'Navy'],
+    sizes: ['XS', 'S', 'M', 'L', 'XL'],
+    isFeatured: true,
+    description: 'Sophisticated wide leg trousers crafted from premium fabric with a beautiful drape. Features a high waist and flattering fit.'
+  },
+  {
+    id: 16,
+    name: 'Knit Beanie Hat',
+    price: 39.99,
+    image: 'https://images.pexels.com/photos/1070058/pexels-photo-1070058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    category: 'accessories',
+    colors: ['Grey', 'Black', 'Burgundy', 'Navy'],
+    sizes: ['One Size'],
+    isTrending: true,
+    description: 'Cozy knit beanie made from soft yarn. Perfect for keeping warm while adding style to your winter outfits.'
+  }
+];
+
+// Combine original products with additional products
+const allProducts = [...products, ...additionalProducts];
+
 export const getFeaturedProducts = (): Product[] => {
-  return products.filter(product => product.isFeatured).slice(0, 4);
+  return allProducts.filter(product => product.isFeatured).slice(0, 8);
 };
 
 export const getTrendingProducts = (): Product[] => {
-  return products.filter(product => product.isTrending).slice(0, 4);
+  return allProducts.filter(product => product.isTrending).slice(0, 8);
 };
 
 export const getNewArrivals = (): Product[] => {
-  return products.filter(product => product.isNew).slice(0, 4);
+  return allProducts.filter(product => product.isNew).slice(0, 8);
 };
 
 export const getProductsByCategory = (category: string): Product[] => {

@@ -56,7 +56,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full relative">
+      <div className="bg-white rounded-lg p-10 max-w-lg w-full relative">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
@@ -64,7 +64,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <X size={24} />
         </button>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
+        <h2 className="text-3xl font-bold mb-8 text-center">
           {isSignUp ? 'Create Account' : 'Sign In'}
         </h2>
 
@@ -75,10 +75,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             error={error}
           />
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && (
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="block text-base font-medium text-gray-700">
                 Name
               </label>
               <input
@@ -86,7 +86,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500"
+                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500 py-3 px-4 text-base"
               />
             </div>
           )}
@@ -100,7 +100,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500 py-4 px-5 text-lg"
             />
           </div>
 
@@ -113,7 +113,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-burgundy-500 focus:ring-burgundy-500 py-4 px-5 text-lg"
             />
           </div>
 

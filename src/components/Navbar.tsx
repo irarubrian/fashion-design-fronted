@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Heart, Menu, X, Search, User } from 'lucide-react';
+import { ShoppingBag, Heart, Menu, X, Search, User, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import AuthModal from './AuthModal';
 
 const Navbar: React.FC = () => {
   const { state: cart, toggleCart } = useCart();
   const { state: wishlist } = useWishlist();
+  const { isAuthenticated, user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,8 +30,8 @@ const Navbar: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality
-    console.log(`Searching for: ${searchQuery}`);
+    // Redirect to search page with query parameter
+    window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
     setIsSearchOpen(false);
     setSearchQuery('');
   };
@@ -36,13 +39,22 @@ const Navbar: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold tracking-tighter">
+          <Link to="/" className="flex items-center gap-2 text-2xl font-bold tracking-tighter">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-burgundy-600">
+              {/* Stylized fashion logo - scissors and thread */}
+              <path d="M7 7.5C7 8.88071 8.11929 10 9.5 10C10.8807 10 12 8.88071 12 7.5C12 6.11929 10.8807 5 9.5 5C8.11929 5 7 6.11929 7 7.5Z" fill="currentColor"/>
+              <path d="M17 16.5C17 17.8807 18.1193 19 19.5 19C20.8807 19 22 17.8807 22 16.5C22 15.1193 20.8807 14 19.5 14C18.1193 14 17 15.1193 17 16.5Z" fill="currentColor"/>
+              <path d="M9.5 10L19.5 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M9.5 5L19.5 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2 5.5L7 7.5L2 9.5V5.5Z" fill="currentColor"/>
+              <path d="M2 14.5L7 16.5L2 18.5V14.5Z" fill="currentColor"/>
+            </svg>
             ELEGANCE
           </Link>
 
@@ -76,12 +88,38 @@ const Navbar: React.FC = () => {
             </button>
 
             {/* Account */}
-            <button
-              onClick={() => setIsAuthModalOpen(true)}
-              className="text-gray-800 hover:text-burgundy-600 transition-colors hidden md:block"
-            >
-              <User size={20} />
-            </button>
+            {isAuthenticated && user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="text-gray-800 hover:text-burgundy-600 transition-colors hidden md:flex items-center gap-2"
+                >
+                  <User size={20} />
+                  <span className="text-sm font-medium">{user.name}</span>
+                </button>
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <button
+                      onClick={() => {
+                        logout();
+                        setShowUserMenu(false);
+                      }}
+                      className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut size={16} className="mr-2" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="text-gray-800 hover:text-burgundy-600 transition-colors hidden md:block"
+              >
+                <User size={20} />
+              </button>
+            )}
 
             {/* Wishlist */}
             <Link to="/wishlist" className="text-gray-800 hover:text-burgundy-600 transition-colors relative">

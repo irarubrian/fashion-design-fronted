@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tempUserData, setTempUserData] = useState<{email: string; verificationCode: string} | null>(null);
+  const [tempUserData, setTempUserData] = useState<{email: string; verificationCode: string; name?: string} | null>(null);
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -56,7 +56,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         await sendVerificationEmail(email, verificationCode);
         console.log('Verification email sent successfully');
-        setTempUserData({ email, verificationCode });
+        // Store the name along with email and verification code
+        setTempUserData({ email, verificationCode, name });
         setIsVerifying(true);
       } catch (emailError) {
         console.error('Error sending verification email:', emailError);
@@ -81,7 +82,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(true);
         setUser({
           id: '1', // This should come from your backend
-          name: 'User', // This should come from your backend
+          name: tempUserData.name || 'User', // Use the name from signup or default to 'User'
           email: tempUserData.email
         });
         setIsVerifying(false);

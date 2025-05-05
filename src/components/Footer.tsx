@@ -4,7 +4,7 @@ import { Instagram, Facebook, Twitter, Youtube, CreditCard, ShieldCheck, Truck }
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Services highlights */}
@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Main footer content */}
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
               </a>
             </div>
           </div>
-          
+
           {/* Shop */}
           <div>
             <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Shop</h3>
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Help */}
           <div>
             <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Help</h3>
@@ -134,7 +134,7 @@ const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
-          
+
           {/* Information */}
           <div>
             <h3 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Information</h3>
@@ -168,7 +168,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Bottom footer */}
       <div className="border-t border-gray-800 py-8">
         <div className="container mx-auto px-4">
