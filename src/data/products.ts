@@ -548,8 +548,8 @@ const newAccessories: Product[] = [
   },
   {
     id: 41,
-    name: "Pearl Statement Necklace",
-    price: 119.99,
+    name: "Rolex Watch",
+    price: 789.99,
     originalPrice: 149.99,
     image: "https://i.pinimg.com/736x/9f/56/b5/9f56b5491605223f1bd2b177b867c462.jpg",
     category: "accessories",
