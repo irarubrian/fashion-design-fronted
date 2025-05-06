@@ -56,7 +56,7 @@ const WishlistContext = createContext<{
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(wishlistReducer, initialState);
 
-  // Load wishlist from localStorage
+  
   useEffect(() => {
     const savedWishlist = localStorage.getItem('wishlist');
     if (savedWishlist) {
@@ -67,7 +67,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // Save wishlist to localStorage when it changes
+  
   useEffect(() => {
     localStorage.setItem('wishlist', JSON.stringify(state.items));
   }, [state.items]);

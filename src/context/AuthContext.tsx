@@ -1,146 +1,155 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { generateVerificationCode, sendVerificationEmail } from '../services/authService';
+"use client"
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  user: User | null;
-  isVerifying: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
-  verifyCode: (code: string) => Promise<void>;
-  resendVerificationCode: () => Promise<void>;
-}
+import type React from "react"
+import { createContext, useContext, useState, useEffect } from "react"
+
+// Mock user data
+const MOCK_USERS = [
+  {
+    id: 1,
+    name: "John Doe",
+    email: "john@example.com",
+    password: "password123",
+    role: "user",
+  },
+  {
+    id: 2,
+    name: "Admin User",
+    email: "admin@example.com",
+    password: "admin123",
+    role: "admin",
+  },
+]
 
 interface User {
-  id: string;
-  name: string;
-  email: string;
+  id: number
+  name: string
+  email: string
+  role: string
 }
 
-interface AuthProviderProps {
-  children: React.ReactNode;
+interface AuthContextType {
+  user: User | null
+  isAuthenticated: boolean
+  isAdmin: boolean
+  loading: boolean
+  login: (email: string, password: string) => Promise<boolean>
+  loginAdmin: (email: string, password: string) => Promise<boolean>
+  register: (name: string, email: string, password: string) => Promise<boolean>
+  logout: () => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [tempUserData, setTempUserData] = useState<{email: string; verificationCode: string; name?: string} | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      setError(null);
-      // TODO: Implement actual login API call here
-      const verificationCode = generateVerificationCode();
-      await sendVerificationEmail(email, verificationCode);
-
-      setTempUserData({ email, verificationCode });
-      setIsVerifying(true);
-    } catch (err) {
-      setError('Login failed. Please try again.');
-    }
-  }, []);
-
-  const signup = useCallback(async (name: string, email: string, password: string) => {
-    try {
-      setError(null);
-      // TODO: Implement actual signup API call here
-      const verificationCode = generateVerificationCode();
-      console.log('Generated verification code for signup:', verificationCode);
-
+  useEffect(() => {
+    // Check for saved user in localStorage on initial load
+    const savedUser = localStorage.getItem("user")
+    if (savedUser) {
       try {
-        await sendVerificationEmail(email, verificationCode);
-        console.log('Verification email sent successfully');
-        // Store the name along with email and verification code
-        setTempUserData({ email, verificationCode, name });
-        setIsVerifying(true);
-      } catch (emailError) {
-        console.error('Error sending verification email:', emailError);
-        setError(emailError instanceof Error ? emailError.message : 'Failed to send verification email');
-        return;
+        setUser(JSON.parse(savedUser))
+      } catch (error) {
+        console.error("Failed to parse saved user:", error)
+        localStorage.removeItem("user")
       }
-    } catch (err) {
-      console.error('Signup process failed:', err);
-      setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
     }
-  }, []);
+    setLoading(false)
+  }, [])
 
-  const verifyCode = useCallback(async (code: string) => {
-    try {
-      setError(null);
-      if (!tempUserData) {
-        throw new Error('No verification in progress');
-      }
+  const login = async (email: string, password: string): Promise<boolean> => {
+    
+    await new Promise((resolve) => setTimeout(resolve, 800))
 
-      if (code === tempUserData.verificationCode) {
-        // TODO: Complete the authentication process with backend
-        setIsAuthenticated(true);
-        setUser({
-          id: '1', // This should come from your backend
-          name: tempUserData.name || 'User', // Use the name from signup or default to 'User'
-          email: tempUserData.email
-        });
-        setIsVerifying(false);
-        setTempUserData(null);
-      } else {
-        throw new Error('Invalid verification code');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
+    // Kupata User na hizo matching credentials
+    const foundUser = MOCK_USERS.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
+
+    if (foundUser) {
+      const { password: _, ...userWithoutPassword } = foundUser
+      setUser(userWithoutPassword)
+      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+      return true
     }
-  }, [tempUserData]);
 
-  const resendVerificationCode = useCallback(async () => {
-    try {
-      setError(null);
-      if (!tempUserData?.email) {
-        throw new Error('No email address available');
-      }
+    return false
+  }
 
-      const newVerificationCode = generateVerificationCode();
-      await sendVerificationEmail(tempUserData.email, newVerificationCode);
-      setTempUserData(prev => prev ? { ...prev, verificationCode: newVerificationCode } : null);
-    } catch (err) {
-      setError('Failed to resend verification code. Please try again.');
+  const loginAdmin = async (email: string, password: string): Promise<boolean> => {
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const foundUser = MOCK_USERS.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password && u.role === "admin",
+    )
+
+    if (foundUser) {
+
+      const { password: _, ...userWithoutPassword } = foundUser
+      setUser(userWithoutPassword)
+      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+      return true
     }
-  }, [tempUserData]);
 
-  const logout = useCallback(() => {
-    setIsAuthenticated(false);
-    setUser(null);
-    setIsVerifying(false);
-    setTempUserData(null);
-    setError(null);
-  }, []);
+    return false
+  }
+
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+   
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+ 
+    if (MOCK_USERS.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      return false
+    }
+
+    // ne User
+    const newUser = {
+      id: MOCK_USERS.length + 1,
+      name,
+      email,
+      password,
+      role: "user",
+    }
+
+    // Add to mock users (Hapa Backend)
+    MOCK_USERS.push(newUser)
+
+   
+    const { password: _, ...userWithoutPassword } = newUser
+    setUser(userWithoutPassword)
+    localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+
+    return true
+  }
+
+  const logout = () => {
+    setUser(null)
+    localStorage.removeItem("user")
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated,
         user,
-        isVerifying,
-        error,
+        isAuthenticated: !!user,
+        isAdmin: !!user && user.role === "admin",
+        loading,
         login,
-        signup,
+        loginAdmin,
+        register,
         logout,
-        verifyCode,
-        resendVerificationCode
       }}
     >
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider")
   }
-  return context;
-};
+  return context
+}

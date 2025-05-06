@@ -7,7 +7,7 @@ export const products: Product[] = [
     price: 89.99,
     originalPrice: 129.99,
     image:
-      "https://images.pexels.com/photos/769732/pexels-photo-769732.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "https://i.pinimg.com/736x/db/17/b1/db17b11ea155e740a8752e72b292b103.jpg",
     category: "women",
     colors: ["White", "Black", "Beige"],
     sizes: ["XS", "S", "M", "L", "XL"],
@@ -123,7 +123,7 @@ export const getRelatedProducts = (id: number, category: string): Product[] => {
 const additionalProducts: Product[] = [
   {
     id: 9,
-    name: "Floral Summer Dress",
+    name: "Floral Dress",
     price: 119.99,
     image:
       "https://images.pexels.com/photos/972995/pexels-photo-972995.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
@@ -201,7 +201,7 @@ const additionalProducts: Product[] = [
   },
   {
     id: 15,
-    name: "Wide Leg Trousers",
+    name: "Classic dotted shirt",
     price: 129.99,
     image:
       "https://images.pexels.com/photos/1021693/pexels-photo-1021693.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
@@ -417,7 +417,7 @@ const newWomensProducts: Product[] = [
   },
   {
     id: 39,
-    name: "Elegant Evening Gown",
+    name: "Elegant Women's official",
     price: 249.99,
     originalPrice: 299.99,
     image: "https://i.pinimg.com/736x/0f/4f/92/0f4f9245a4841c6f4bf90faf737f3b6e.jpg",
@@ -443,7 +443,7 @@ const newWomensProducts: Product[] = [
   },
 ]
 
-// New accessories with the provided images
+
 const newAccessories: Product[] = [
   {
     id: 29,

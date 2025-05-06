@@ -33,11 +33,11 @@ const CategoryPage: React.FC = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const [showFilters, setShowFilters] = useState(false);
   
-  // Filter states
+  
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   
-  // Get all available colors and sizes from products
+  
   const allColors = Array.from(new Set(products.flatMap(p => p.colors)));
   const allSizes = Array.from(new Set(products.flatMap(p => p.sizes)));
   

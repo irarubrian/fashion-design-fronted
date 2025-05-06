@@ -15,7 +15,7 @@ const DeliveryTrackingMap: React.FC<DeliveryTrackingMapProps> = ({ status }) => 
     { id: "delivered", label: "Delivered", icon: Home },
   ]
 
-  // Find the current step index
+ 
   const currentStepIndex = steps.findIndex((step) => step.id === status)
 
   return (
@@ -63,12 +63,12 @@ const DeliveryTrackingMap: React.FC<DeliveryTrackingMapProps> = ({ status }) => 
             <span className="font-medium text-green-600">Your order has been delivered!</span>
           ) : (
             <>
-              <span className="font-medium">Estimated Delivery:</span> Thursday, May 8th, 2025
+              <span className="font-medium">Estimated Delivery:</span> Saturday, May 10th, 2025
             </>
           )}
         </p>
 
-        {/* Delivery details based on status */}
+        {/* Delivery details */}
         <p className="text-xs text-gray-500 mt-2">
           {status === "processing" && "Your order is being prepared for shipment."}
           {status === "shipped" && "Your order has left our warehouse and is on its way!"}

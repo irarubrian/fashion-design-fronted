@@ -5,36 +5,27 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { useTheme } from "../context/ThemeContext"
-import { X } from "lucide-react"
 
-interface AuthModalProps {
+interface AuthSelectionModalProps {
   isOpen: boolean
   onClose: () => void
-  initialMode?: "login" | "register" | "adminLogin"
+  mode: "login" | "register"
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "login" }) => {
-  const [mode, setMode] = useState<"login" | "register" | "adminLogin">(initialMode)
+const AuthSelectionModal: React.FC<AuthSelectionModalProps> = ({ isOpen, onClose, mode: initialMode }) => {
+  const [mode, setMode] = useState<"login" | "register">(initialMode)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { login, register, loginAdmin } = useAuth()
+  const { login, register } = useAuth()
   const navigate = useNavigate()
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
   if (!isOpen) return null
-
-  const resetForm = () => {
-    setName("")
-    setEmail("")
-    setPassword("")
-    setConfirmPassword("")
-    setError("")
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,31 +39,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
     setIsLoading(true)
 
     try {
-      let success = false
-
       if (mode === "login") {
-        success = await login(email, password)
+        const success = await login(email, password)
         if (success) {
           onClose()
           navigate("/")
         } else {
           setError("Invalid credentials. Please try again.")
         }
-      } else if (mode === "register") {
-        success = await register(name, email, password)
+      } else {
+        const success = await register(name, email, password)
         if (success) {
           onClose()
           navigate("/")
         } else {
           setError("Registration failed. Email may already be in use.")
-        }
-      } else if (mode === "adminLogin") {
-        success = await loginAdmin(email, password)
-        if (success) {
-          onClose()
-          navigate("/admin/dashboard")
-        } else {
-          setError("Invalid admin credentials. Please try again.")
         }
       }
     } catch (err) {
@@ -81,11 +62,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const switchMode = (newMode: "login" | "register" | "adminLogin") => {
-    setMode(newMode)
-    resetForm()
   }
 
   return (
@@ -101,7 +77,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
 
         <div
           className={`inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full p-6 ${
-            isDark ? "bg-gray-800" : "bg-white"
+            isDark ? "bg-dark-secondary" : "bg-white"
           }`}
         >
           <div className="absolute top-0 right-0 pt-4 pr-4">
@@ -111,7 +87,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
               className={`bg-transparent rounded-md text-gray-400 hover:text-gray-500 focus:outline-none`}
             >
               <span className="sr-only">Close</span>
-              <X className="h-6 w-6" />
+              <svg
+                className="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
@@ -120,49 +105,43 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
               <h3
                 className={`text-lg leading-6 font-medium ${isDark ? "text-white" : "text-gray-900"} text-center mb-6`}
               >
-                {mode === "login"
-                  ? "Sign in to your account"
-                  : mode === "register"
-                    ? "Create a new account"
-                    : "Admin Sign In"}
+                {mode === "login" ? "Sign in to your account" : "Create a new account"}
               </h3>
 
-              {mode !== "adminLogin" && (
-                <div className="flex justify-center mb-6">
-                  <div className="flex rounded-md shadow-sm">
-                    <button
-                      type="button"
-                      onClick={() => switchMode("login")}
-                      className={`px-4 py-2 text-sm font-medium rounded-l-md ${
-                        mode === "login"
-                          ? isDark
-                            ? "bg-gray-700 text-white"
-                            : "bg-gray-800 text-white"
-                          : isDark
-                            ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
-                    >
-                      Sign In
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => switchMode("register")}
-                      className={`px-4 py-2 text-sm font-medium rounded-r-md ${
-                        mode === "register"
-                          ? isDark
-                            ? "bg-gray-700 text-white"
-                            : "bg-gray-800 text-white"
-                          : isDark
-                            ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
-                    >
-                      Register
-                    </button>
-                  </div>
+              <div className="flex justify-center mb-6">
+                <div className="flex rounded-md shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setMode("login")}
+                    className={`px-4 py-2 text-sm font-medium rounded-l-md ${
+                      mode === "login"
+                        ? isDark
+                          ? "bg-gray-700 text-white"
+                          : "bg-gray-800 text-white"
+                        : isDark
+                          ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode("register")}
+                    className={`px-4 py-2 text-sm font-medium rounded-r-md ${
+                      mode === "register"
+                        ? isDark
+                          ? "bg-gray-700 text-white"
+                          : "bg-gray-800 text-white"
+                        : isDark
+                          ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    Register
+                  </button>
                 </div>
-              )}
+              </div>
 
               <form onSubmit={handleSubmit}>
                 {mode === "register" && (
@@ -182,9 +161,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                       required={mode === "register"}
                       className={`block w-full px-3 py-2 border ${
                         isDark
-                          ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500"
+                          ? "border-gray-700 bg-dark-elevated text-white placeholder-gray-500"
                           : "border-gray-300 placeholder-gray-400 text-gray-900"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm`}
+                      } rounded-md shadow-sm focus:outline-none focus:ring-silver focus:border-silver sm:text-sm`}
                     />
                   </div>
                 )}
@@ -205,9 +184,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                     required
                     className={`block w-full px-3 py-2 border ${
                       isDark
-                        ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500"
+                        ? "border-gray-700 bg-dark-elevated text-white placeholder-gray-500"
                         : "border-gray-300 placeholder-gray-400 text-gray-900"
-                    } rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm`}
+                    } rounded-md shadow-sm focus:outline-none focus:ring-silver focus:border-silver sm:text-sm`}
                   />
                 </div>
 
@@ -227,9 +206,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                     required
                     className={`block w-full px-3 py-2 border ${
                       isDark
-                        ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500"
+                        ? "border-gray-700 bg-dark-elevated text-white placeholder-gray-500"
                         : "border-gray-300 placeholder-gray-400 text-gray-900"
-                    } rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm`}
+                    } rounded-md shadow-sm focus:outline-none focus:ring-silver focus:border-silver sm:text-sm`}
                   />
                 </div>
 
@@ -250,9 +229,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                       required={mode === "register"}
                       className={`block w-full px-3 py-2 border ${
                         isDark
-                          ? "border-gray-700 bg-gray-900 text-white placeholder-gray-500"
+                          ? "border-gray-700 bg-dark-elevated text-white placeholder-gray-500"
                           : "border-gray-300 placeholder-gray-400 text-gray-900"
-                      } rounded-md shadow-sm focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm`}
+                      } rounded-md shadow-sm focus:outline-none focus:ring-silver focus:border-silver sm:text-sm`}
                     />
                   </div>
                 )}
@@ -265,15 +244,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                     disabled={isLoading}
                     className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
                       isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-800 hover:bg-gray-700"
-                    } text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm ${
+                    } text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-silver sm:ml-3 sm:w-auto sm:text-sm ${
                       isLoading ? "opacity-70 cursor-not-allowed" : ""
                     }`}
                   >
                     {isLoading
-                      ? mode === "login" || mode === "adminLogin"
+                      ? mode === "login"
                         ? "Signing in..."
                         : "Creating account..."
-                      : mode === "login" || mode === "adminLogin"
+                      : mode === "login"
                         ? "Sign in"
                         : "Create account"}
                   </button>
@@ -281,41 +260,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
                     type="button"
                     onClick={onClose}
                     className={`mt-3 w-full inline-flex justify-center rounded-md border ${
-                      isDark ? "border-gray-700 bg-gray-900" : "border-gray-300 bg-white"
+                      isDark ? "border-gray-700 bg-dark-elevated" : "border-gray-300 bg-white"
                     } px-4 py-2 ${
                       isDark ? "text-gray-300" : "text-gray-700"
-                    } shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm`}
+                    } shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-silver sm:mt-0 sm:w-auto sm:text-sm`}
                   >
                     Cancel
                   </button>
                 </div>
               </form>
-
-              {mode === "login" && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => switchMode("adminLogin")}
-                    className={`text-sm font-medium ${
-                      isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"
-                    }`}
-                  >
-                    Sign in as Admin
-                  </button>
-                </div>
-              )}
-
-              {mode === "adminLogin" && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => switchMode("login")}
-                    className={`text-sm font-medium ${
-                      isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-600 hover:text-gray-800"
-                    }`}
-                  >
-                    Back to User Login
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -324,4 +277,4 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = "l
   )
 }
 
-export default AuthModal
+export default AuthSelectionModal
