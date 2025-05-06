@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for saved user in localStorage on initial load
+   
     const savedUser = localStorage.getItem("user")
     if (savedUser) {
       try {
@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role: "user",
     }
 
-    // Add to mock users (Hapa Backend)
+    // mock users (Hapa Backend)
     MOCK_USERS.push(newUser)
 
    

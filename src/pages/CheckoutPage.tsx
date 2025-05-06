@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import type React from "react"
@@ -5,21 +6,32 @@ import { useState } from "react"
 import { useCart } from "../context/CartContext"
 import { Link } from "react-router-dom"
 import { useTheme } from "../context/ThemeContext"
+import { useAuth } from "../context/AuthContext" 
 import DeliveryTrackingMap from "../components/DeliveryTrackingMap"
+import AuthModal from "../components/AuthModal" 
 
 type DeliveryStatus = "processing" | "shipped" | "out-for-delivery" | "delivered"
 
 const CheckoutPage: React.FC = () => {
   const { state } = useCart()
   const { theme } = useTheme()
+  const { isAuthenticated } = useAuth() 
   const isDark = theme === "dark"
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>("processing")
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card")
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentComplete, setPaymentComplete] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false) 
 
   const handlePlaceOrder = () => {
+    
+    if (!isAuthenticated) {
+      setShowAuthModal(true)
+      return
+    }
+
+   
     setShowPaymentModal(true)
   }
 
@@ -29,14 +41,19 @@ const CheckoutPage: React.FC = () => {
     setOrderPlaced(true)
     setDeliveryStatus("processing")
 
-    // Simulate delivery status updates
-    setTimeout(() => setDeliveryStatus("shipped"), 20000) // 20 seconds
-    setTimeout(() => setDeliveryStatus("out-for-delivery"), 40000) // 40 seconds
-    setTimeout(() => setDeliveryStatus("delivered"), 180000) // 3 minutes
+    
+    setTimeout(() => setDeliveryStatus("shipped"), 10000) // 10 seconds
+    setTimeout(() => setDeliveryStatus("out-for-delivery"), 30000) // 30 seconds
+    setTimeout(() => setDeliveryStatus("delivered"), 60000) // 1 minute
   }
 
   const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPaymentMethod(e.target.id)
+  }
+
+  
+  const handleAuthModalClose = () => {
+    setShowAuthModal(false)
   }
 
   if (state.items.length === 0 && !orderPlaced) {
@@ -307,6 +324,9 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Authentication Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={handleAuthModalClose} initialMode="login" />
 
       {/* Payment Modals */}
       {showPaymentModal && (
