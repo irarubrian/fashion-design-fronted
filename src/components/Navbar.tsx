@@ -44,7 +44,7 @@ const Navbar: React.FC = () => {
     setSearchQuery("")
   }
 
- 
+
   const getTextColor = () => {
     if (isScrolled) {
       return isDark ? "text-gray-200 hover:text-white" : "text-gray-800 hover:text-gray-600"
@@ -175,28 +175,67 @@ const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className={`hidden md:flex items-center gap-2 transition-colors ${getTextColor()}`}
+                  aria-haspopup="true"
+                  aria-expanded={showUserMenu}
+                  aria-controls="user-menu"
+                  className="hidden md:flex items-center justify-center w-10 h-10 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  <User size={20} />
-                  <span className="text-sm font-medium">{user.name}</span>
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={`${user.name} avatar`}
+                      className="w-10 h-10 object-cover rounded-full"
+                    />
+                  ) : (
+                    <User size={24} className="text-gray-300" />
+                  )}
                 </button>
                 {showUserMenu && (
                   <div
-                    className={`absolute right-0 mt-2 w-48 ${
-                      isDark ? "bg-gray-800 text-gray-200" : "bg-white text-gray-700"
-                    } rounded-md shadow-lg py-1 z-10`}
+                    id="user-menu"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="user-menu-button"
+                    tabIndex={-1}
+                    className="absolute right-0 mt-2 w-48 bg-[#202123] text-[#E5E5E5] rounded-sm shadow-lg py-1 z-10"
+                    style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
                   >
+                    <Link
+                      to="/track-shipping"
+                      role="menuitem"
+                      tabIndex={0}
+                      className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-5 h-5 mr-3"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3 10h1l1 2h13l1-2h1M3 10v6a2 2 0 002 2h14a2 2 0 002-2v-6M16 16a2 2 0 11-4 0"
+                        />
+                      </svg>
+                      Track Shipping
+                    </Link>
+                    <div className="border-t border-[#2F3033]" />
                     <button
+                      role="menuitem"
+                      tabIndex={0}
                       onClick={() => {
                         logout()
                         setShowUserMenu(false)
                       }}
-                      className={`flex w-full items-center px-4 py-2 text-sm ${
-                        isDark ? "hover:bg-gray-700" : "hover:bg-gray-100"
-                      }`}
+                      className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
                     >
-                      <LogOut size={16} className="mr-2" />
-                      Sign out
+                      <LogOut size={20} className="mr-3" />
+                      Log Out
                     </button>
                   </div>
                 )}
