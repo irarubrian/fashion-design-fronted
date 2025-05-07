@@ -15,6 +15,13 @@ const Navbar: React.FC = () => {
   const { state: cart, toggleCart } = useCart()
   const { state: wishlist } = useWishlist()
   const { isAuthenticated, user, logout } = useAuth()
+
+  // Fix for TS error: user type may not have profilePicture property
+  type UserWithProfile = typeof user & { profilePicture?: string }
+  const userWithProfile = user as UserWithProfile
+
+  // Fix for TS error: className does not exist on IntrinsicAttributes for ThemeToggle
+  // We will wrap ThemeToggle with a div to apply className instead of passing directly
   const { theme } = useTheme()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -22,6 +29,17 @@ const Navbar: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
+
+  // Handle profile image upload
+  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const imageUrl = URL.createObjectURL(file)
+      setProfileImage(imageUrl)
+      // Here you would also want to upload the image to your backend or storage service
+    }
+  }
 
   const isDark = theme === "dark"
 
@@ -42,6 +60,13 @@ const Navbar: React.FC = () => {
     window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
     setIsSearchOpen(false)
     setSearchQuery("")
+  }
+
+  // Fix for line 138 error: add missing import for React.KeyboardEvent
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      setShowUserMenu(false)
+    }
   }
 
 
@@ -135,7 +160,9 @@ const Navbar: React.FC = () => {
           {/* Actions */}
           <div className="flex items-center space-x-4">
             {/* Theme Toggle */}
-            <ThemeToggle className={getTextColor()} />
+            <div className={getTextColor()}>
+              <ThemeToggle />
+            </div>
 
             {/* Search */}
             <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`transition-colors ${getTextColor()}`}>
@@ -171,83 +198,98 @@ const Navbar: React.FC = () => {
             </button>
 
             {/* Account */}
-            {isAuthenticated && user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  aria-haspopup="true"
-                  aria-expanded={showUserMenu}
-                  aria-controls="user-menu"
-                  className="hidden md:flex items-center justify-center w-10 h-10 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {user.profilePicture ? (
-                    <img
-                      src={user.profilePicture}
-                      alt={`${user.name} avatar`}
-                      className="w-10 h-10 object-cover rounded-full"
-                    />
-                  ) : (
-                    <User size={24} className="text-gray-300" />
-                  )}
-                </button>
-                {showUserMenu && (
-                  <div
-                    id="user-menu"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="user-menu-button"
-                    tabIndex={-1}
-                    className="absolute right-0 mt-2 w-48 bg-[#202123] text-[#E5E5E5] rounded-sm shadow-lg py-1 z-10"
-                    style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
-                  >
-                    <Link
-                      to="/track-shipping"
-                      role="menuitem"
-                      tabIndex={0}
-                      className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5 mr-3"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3 10h1l1 2h13l1-2h1M3 10v6a2 2 0 002 2h14a2 2 0 002-2v-6M16 16a2 2 0 11-4 0"
-                        />
-                      </svg>
-                      Track Shipping
-                    </Link>
-                    <div className="border-t border-[#2F3033]" />
+                {isAuthenticated && user ? (
+                  <div className="relative">
                     <button
-                      role="menuitem"
-                      tabIndex={0}
-                      onClick={() => {
-                        logout()
-                        setShowUserMenu(false)
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
+                      onClick={() => setShowUserMenu(!showUserMenu)}
+                      aria-haspopup="true"
+                      aria-expanded={showUserMenu}
+                      aria-controls="user-menu"
+                      className="hidden md:flex items-center justify-center w-10 h-10 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      <LogOut size={20} className="mr-3" />
-                      Log Out
+                      {profileImage ? (
+                        <img
+                          src={profileImage}
+                          alt="User avatar"
+                          className="w-10 h-10 object-cover rounded-full"
+                        />
+                      ) : "profilePicture" in user && user.profilePicture ? (
+                        <img
+                          src={typeof user.profilePicture === "string" ? user.profilePicture : URL.createObjectURL(user.profilePicture)}
+                          alt={`${user.name} avatar`}
+                          className="w-10 h-10 object-cover rounded-full"
+                        />
+                      ) : (
+                        <User size={24} className="text-gray-300" />
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfileImageChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
+                        aria-label="Change profile picture"
+                        title="Change profile picture"
+                      />
                     </button>
+                    {showUserMenu && (
+                      <div
+                        id="user-menu"
+                        role="menu"
+                        aria-orientation="vertical"
+                        aria-labelledby="user-menu-button"
+                        tabIndex={-1}
+                        onKeyDown={handleKeyDown}
+                        className="absolute right-0 mt-2 w-48 bg-[#202123] text-[#E5E5E5] rounded-sm shadow-lg py-1 z-10"
+                        style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+                      >
+                        <Link
+                          to="/track-shipping"
+                          role="menuitem"
+                          tabIndex={0}
+                          className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5 mr-3"
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3 10h1l1 2h13l1-2h1M3 10v6a2 2 0 002 2h14a2 2 0 002-2v-6M16 16a2 2 0 11-4 0"
+                            />
+                          </svg>
+                          Track Shipping
+                        </Link>
+                        <div className="border-t border-[#2F3033]" />
+                        <button
+                          role="menuitem"
+                          tabIndex={0}
+                          onClick={() => {
+                            logout()
+                            setShowUserMenu(false)
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm font-normal hover:bg-[#2A2B2E] focus:bg-[#2A2B2E] focus:outline-none"
+                        >
+                          <LogOut size={20} className="mr-3" />
+                          Log Out
+                        </button>
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <button
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className={`hidden md:block transition-colors ${getTextColor()}`}
+                  >
+                    <User size={20} />
+                  </button>
                 )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className={`hidden md:block transition-colors ${getTextColor()}`}
-              >
-                <User size={20} />
-              </button>
-            )}
 
             {/* Mobile Menu Button */}
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={`md:hidden ${getTextColor()}`}>
