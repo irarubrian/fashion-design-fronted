@@ -4,34 +4,37 @@
 import type React from "react"
 import { useState } from "react"
 import { useCart } from "../context/CartContext"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useTheme } from "../context/ThemeContext"
-import { useAuth } from "../context/AuthContext" 
+import { useAuth } from "../context/AuthContext"
 import DeliveryTrackingMap from "../components/DeliveryTrackingMap"
-import AuthModal from "../components/AuthModal" 
+import AuthModal from "../components/AuthModal"
 
 type DeliveryStatus = "processing" | "shipped" | "out-for-delivery" | "delivered"
 
 const CheckoutPage: React.FC = () => {
   const { state } = useCart()
   const { theme } = useTheme()
-  const { isAuthenticated } = useAuth() 
+  const { isAuthenticated } = useAuth()
   const isDark = theme === "dark"
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const trackingOnly = searchParams.get("trackingOnly") === "true"
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>("processing")
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card")
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentComplete, setPaymentComplete] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false) 
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const handlePlaceOrder = () => {
-    
+
     if (!isAuthenticated) {
       setShowAuthModal(true)
       return
     }
 
-   
+
     setShowPaymentModal(true)
   }
 
@@ -41,7 +44,7 @@ const CheckoutPage: React.FC = () => {
     setOrderPlaced(true)
     setDeliveryStatus("processing")
 
-    
+
     setTimeout(() => setDeliveryStatus("shipped"), 10000) // 10 seconds
     setTimeout(() => setDeliveryStatus("out-for-delivery"), 30000) // 30 seconds
     setTimeout(() => setDeliveryStatus("delivered"), 60000) // 1 minute
@@ -51,16 +54,32 @@ const CheckoutPage: React.FC = () => {
     setSelectedPaymentMethod(e.target.id)
   }
 
-  
+
   const handleAuthModalClose = () => {
     setShowAuthModal(false)
+  }
+
+  if (trackingOnly) {
+    // Render only tracking progress section
+    return (
+      <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
+        <h1 className="text-2xl font-semibold mb-6">Track Your Shipping</h1>
+        <div
+          className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
+        >
+          <div className="mt-8">
+            <DeliveryTrackingMap status={deliveryStatus} />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (state.items.length === 0 && !orderPlaced) {
     return (
       <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
         <div className="text-center py-12">
-          <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
+
           <p className="mb-6">Add some items to your cart before checking out.</p>
           <Link
             to="/"
@@ -72,7 +91,6 @@ const CheckoutPage: React.FC = () => {
       </div>
     )
   }
-
   return (
     <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
       <h1 className="text-2xl font-semibold mb-6">Checkout</h1>

@@ -8,6 +8,7 @@ import CategoryPage from "./pages/CategoryPage"
 import WishlistPage from "./pages/WishlistPage"
 import CheckoutPage from "./pages/CheckoutPage"
 import SearchPage from "./pages/SearchPage"
+import TrackShippingPage from "./pages/TrackShippingPage"
 import UserLogin from "./pages/UserLogin"
 import Register from "./pages/Register"
 import AdminLogin from "./pages/admin/AdminLogin"
@@ -146,6 +147,19 @@ function App() {
                       <Navbar />
                       <main className="flex-grow">
                         <CheckoutPage />
+                      </main>
+                      <Footer />
+                      <Cart />
+                    </div>
+                  }
+                />
+                <Route
+                  path="/track-shipping"
+                  element={
+                    <div className="flex flex-col min-h-screen transition-theme duration-300 dark:bg-dark-primary dark:text-white">
+                      <Navbar />
+                      <main className="flex-grow">
+                        <TrackShippingPage />
                       </main>
                       <Footer />
                       <Cart />
