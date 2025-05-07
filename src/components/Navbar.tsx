@@ -215,8 +215,8 @@ const Navbar: React.FC = () => {
                         />
                       ) : "profilePicture" in user && user.profilePicture ? (
                         <img
-                          src={typeof user.profilePicture === "string" ? user.profilePicture : URL.createObjectURL(user.profilePicture)}
-                          alt={`${user.name} avatar`}
+                          src={typeof userWithProfile.profilePicture === "string" ? userWithProfile.profilePicture : URL.createObjectURL(userWithProfile.profilePicture as Blob)}
+                          alt={`${userWithProfile.name} avatar`}
                           className="w-10 h-10 object-cover rounded-full"
                         />
                       ) : (
