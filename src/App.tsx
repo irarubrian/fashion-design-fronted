@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import Navbar from "./components/Navbar"
 import Cart from "./components/Cart"
 import Footer from "./components/Footer"
@@ -86,6 +86,9 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Catch-all route for admin paths */}
+                <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
 
                 {/* Store Routes */}
                 <Route

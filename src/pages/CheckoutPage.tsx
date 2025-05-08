@@ -1,50 +1,69 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import type React from "react"
 import { useState } from "react"
 import { useCart } from "../context/CartContext"
-import { Link, useLocation } from "react-router-dom"
 import { useTheme } from "../context/ThemeContext"
 import { useAuth } from "../context/AuthContext"
 import DeliveryTrackingMap from "../components/DeliveryTrackingMap"
 import AuthModal from "../components/AuthModal"
+import MpesaPaymentModal from "../components/MpesaPaymentModal"
 
 type DeliveryStatus = "processing" | "shipped" | "out-for-delivery" | "delivered"
 
-const CheckoutPage: React.FC = () => {
+interface CheckoutPageProps {
+  onNavigate?: (path: string) => void // For navigation without react-router-dom
+}
+
+const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   const { state } = useCart()
   const { theme } = useTheme()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const isDark = theme === "dark"
-  const location = useLocation()
-  const searchParams = new URLSearchParams(location.search)
-  const trackingOnly = searchParams.get("trackingOnly") === "true"
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>("processing")
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card")
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showMpesaModal, setShowMpesaModal] = useState(false)
   const [paymentComplete, setPaymentComplete] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handlePlaceOrder = () => {
+  // Form state
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+  })
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handlePlaceOrder = () => {
     if (!isAuthenticated) {
       setShowAuthModal(true)
       return
     }
 
-
-    setShowPaymentModal(true)
+    if (selectedPaymentMethod === "mpesa") {
+      setShowMpesaModal(true)
+    } else {
+      setShowPaymentModal(true)
+    }
   }
 
   const completeOrder = () => {
     setShowPaymentModal(false)
+    setShowMpesaModal(false)
     setPaymentComplete(true)
     setOrderPlaced(true)
     setDeliveryStatus("processing")
 
-
+    // Simulate order status updates
     setTimeout(() => setDeliveryStatus("shipped"), 10000) // 10 seconds
     setTimeout(() => setDeliveryStatus("out-for-delivery"), 30000) // 30 seconds
     setTimeout(() => setDeliveryStatus("delivered"), 60000) // 1 minute
@@ -54,43 +73,36 @@ const CheckoutPage: React.FC = () => {
     setSelectedPaymentMethod(e.target.id)
   }
 
-
   const handleAuthModalClose = () => {
     setShowAuthModal(false)
   }
 
-  if (trackingOnly) {
-    // Render only tracking progress section
-    return (
-      <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
-        <h1 className="text-2xl font-semibold mb-6">Track Your Shipping</h1>
-        <div
-          className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
-        >
-          <div className="mt-8">
-            <DeliveryTrackingMap status={deliveryStatus} />
-          </div>
-        </div>
-      </div>
-    )
+  const handleMpesaPaymentComplete = () => {
+    completeOrder()
   }
+
+  // Calculate totals
+  const subtotal = state.totalPrice
+  const shipping = 5.99
+  const tax = subtotal * 0.08
+  const total = subtotal + shipping + tax
 
   if (state.items.length === 0 && !orderPlaced) {
     return (
       <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
         <div className="text-center py-12">
-
           <p className="mb-6">Add some items to your cart before checking out.</p>
-          <Link
-            to="/"
-            className={`px-6 py-3 ${isDark ? "bg-burgundy-600 hover:bg-burgundy-700" : "bg-gray-700 hover:bg-gray-600"} text-white rounded-md transition-colors`}
+          <button
+            onClick={() => onNavigate && onNavigate("/")}
+            className={`px-6 py-3 ${isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-700 hover:bg-gray-600"} text-white rounded-md transition-colors`}
           >
             Continue Shopping
-          </Link>
+          </button>
         </div>
       </div>
     )
   }
+
   return (
     <div className={`container mx-auto px-4 py-8 ${isDark ? "text-white" : ""}`}>
       <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
@@ -101,7 +113,7 @@ const CheckoutPage: React.FC = () => {
           {!orderPlaced ? (
             <>
               <div
-                className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
+                className={`${isDark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
               >
                 <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,7 +123,10 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                   <div>
@@ -120,7 +135,10 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="email"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                   <div>
@@ -129,7 +147,10 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="tel"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -138,7 +159,10 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                   <div>
@@ -147,7 +171,10 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                   <div>
@@ -156,14 +183,17 @@ const CheckoutPage: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white" : "border-gray-300 text-gray-900"} rounded-md focus:ring-gray-500 focus:border-gray-500`}
                     />
                   </div>
                 </form>
               </div>
 
               <div
-                className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
+                className={`${isDark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
               >
                 <h2 className="text-xl font-medium mb-4">Payment Method</h2>
                 <div className="space-y-4">
@@ -172,7 +202,7 @@ const CheckoutPage: React.FC = () => {
                       id="card"
                       name="payment"
                       type="radio"
-                      className={`h-4 w-4 ${isDark ? "text-burgundy-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
+                      className={`h-4 w-4 ${isDark ? "text-gray-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
                       checked={selectedPaymentMethod === "card"}
                       onChange={handlePaymentMethodChange}
                     />
@@ -193,7 +223,7 @@ const CheckoutPage: React.FC = () => {
                       id="paypal"
                       name="payment"
                       type="radio"
-                      className={`h-4 w-4 ${isDark ? "text-burgundy-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
+                      className={`h-4 w-4 ${isDark ? "text-gray-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
                       checked={selectedPaymentMethod === "paypal"}
                       onChange={handlePaymentMethodChange}
                     />
@@ -214,7 +244,7 @@ const CheckoutPage: React.FC = () => {
                       id="mpesa"
                       name="payment"
                       type="radio"
-                      className={`h-4 w-4 ${isDark ? "text-burgundy-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
+                      className={`h-4 w-4 ${isDark ? "text-gray-600 border-gray-700" : "text-gray-600 border-gray-300"} focus:ring-gray-500`}
                       checked={selectedPaymentMethod === "mpesa"}
                       onChange={handlePaymentMethodChange}
                     />
@@ -235,7 +265,7 @@ const CheckoutPage: React.FC = () => {
             </>
           ) : (
             <div
-              className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
+              className={`${isDark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-lg shadow-md p-6 mb-6`}
             >
               <div className="text-center py-4">
                 <h2 className="text-xl font-medium mb-2">Thank you for your order!</h2>
@@ -259,7 +289,7 @@ const CheckoutPage: React.FC = () => {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div
-            className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg shadow-md p-6 sticky top-6`}
+            className={`${isDark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-lg shadow-md p-6 sticky top-6`}
           >
             <h2 className="text-xl font-medium mb-4">Order Summary</h2>
 
@@ -302,21 +332,21 @@ const CheckoutPage: React.FC = () => {
             <div className={`border-t pt-4 space-y-2 ${isDark ? "border-gray-700" : "border-gray-200"}`}>
               <div className="flex justify-between text-sm">
                 <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Subtotal</p>
-                <p className="font-medium">${state.totalPrice.toFixed(2)}</p>
+                <p className="font-medium">${subtotal.toFixed(2)}</p>
               </div>
               <div className="flex justify-between text-sm">
                 <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Shipping</p>
-                <p className="font-medium">$5.99</p>
+                <p className="font-medium">${shipping.toFixed(2)}</p>
               </div>
               <div className="flex justify-between text-sm">
                 <p className={`${isDark ? "text-gray-400" : "text-gray-600"}`}>Tax</p>
-                <p className="font-medium">${(state.totalPrice * 0.08).toFixed(2)}</p>
+                <p className="font-medium">${tax.toFixed(2)}</p>
               </div>
               <div
                 className={`flex justify-between text-base font-medium mt-4 pt-4 border-t ${isDark ? "border-gray-700" : "border-gray-200"}`}
               >
                 <p>Total</p>
-                <p>${(state.totalPrice + 5.99 + state.totalPrice * 0.08).toFixed(2)}</p>
+                <p>${total.toFixed(2)}</p>
               </div>
             </div>
 
@@ -324,33 +354,41 @@ const CheckoutPage: React.FC = () => {
               <button
                 onClick={handlePlaceOrder}
                 className={`w-full mt-6 py-3 px-4 rounded-md transition-colors text-white ${
-                  isDark ? "bg-gray-400 hover:bg-green-700" : "bg-gray-700 hover:bg-gray-600"
+                  isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
                 Place Order
               </button>
             ) : (
-              <Link
-                to="/"
+              <button
+                onClick={() => onNavigate && onNavigate("/")}
                 className={`w-full mt-6 block text-center py-3 px-4 rounded-md transition-colors text-white ${
-                  isDark ? "bg-gray-400 hover:bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
+                  isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
                 Continue Shopping
-              </Link>
+              </button>
             )}
           </div>
         </div>
       </div>
 
       {/* Authentication Modal */}
-      <AuthModal isOpen={showAuthModal} onClose={handleAuthModalClose} initialMode="login" />
+      <AuthModal isOpen={showAuthModal} onClose={handleAuthModalClose} initialMode="login" onNavigate={onNavigate} />
 
-      {/* Payment Modals */}
+      {/* M-Pesa Payment Modal */}
+      <MpesaPaymentModal
+        isOpen={showMpesaModal}
+        onClose={() => setShowMpesaModal(false)}
+        amount={total}
+        onPaymentComplete={handleMpesaPaymentComplete}
+      />
+
+      {/* Other Payment Modals */}
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div
-            className={`${isDark ? "bg-dark-secondary border border-dark-elevated" : "bg-white"} rounded-lg p-6 max-w-md w-full`}
+            className={`${isDark ? "bg-gray-800 border border-gray-700" : "bg-white"} rounded-lg p-6 max-w-md w-full`}
           >
             {selectedPaymentMethod === "card" && (
               <div>
@@ -363,7 +401,7 @@ const CheckoutPage: React.FC = () => {
                     <input
                       type="text"
                       placeholder="1234 5678 9012 3456"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -374,7 +412,7 @@ const CheckoutPage: React.FC = () => {
                       <input
                         type="text"
                         placeholder="MM/YY"
-                        className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
+                        className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
                       />
                     </div>
                     <div>
@@ -384,7 +422,7 @@ const CheckoutPage: React.FC = () => {
                       <input
                         type="text"
                         placeholder="123"
-                        className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
+                        className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
                       />
                     </div>
                   </div>
@@ -395,7 +433,7 @@ const CheckoutPage: React.FC = () => {
                     <input
                       type="text"
                       placeholder="John Doe"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
                     />
                   </div>
                 </div>
@@ -423,35 +461,7 @@ const CheckoutPage: React.FC = () => {
                     <input
                       type="email"
                       placeholder="email@example.com"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedPaymentMethod === "mpesa" && (
-              <div>
-                <h3 className="text-xl font-medium mb-4">M-PESA Payment</h3>
-                <div className="text-center mb-4">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1200px-M-PESA_LOGO-01.svg.png"
-                    alt="M-PESA"
-                    className="h-16 mx-auto mb-4"
-                  />
-                  <p className={`${isDark ? "text-gray-300" : "text-gray-600"}`}>
-                    Enter your M-PESA details to complete payment.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className={`block text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="254 7XX XXX XXX"
-                      className={`w-full p-2 border ${isDark ? "bg-dark-elevated border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
+                      className={`w-full p-2 border ${isDark ? "bg-gray-900 border-gray-700 text-white placeholder:text-gray-500" : "border-gray-300"} rounded-md`}
                     />
                   </div>
                 </div>
@@ -463,7 +473,7 @@ const CheckoutPage: React.FC = () => {
                 onClick={() => setShowPaymentModal(false)}
                 className={`px-4 py-2 border rounded-md ${
                   isDark
-                    ? "border-gray-700 text-gray-300 hover:bg-dark-elevated"
+                    ? "border-gray-700 text-gray-300 hover:bg-gray-700"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
                 }`}
               >
@@ -472,7 +482,7 @@ const CheckoutPage: React.FC = () => {
               <button
                 onClick={completeOrder}
                 className={`px-4 py-2 text-white rounded-md ${
-                  isDark ? "bg-gray-700 hover:bg-gray-300" : "bg-gray-700 hover:bg-gray-600"
+                  isDark ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
                 Complete Payment

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext"
 import { useTheme } from "../../context/ThemeContext"
@@ -11,10 +11,18 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { loginAdmin } = useAuth()
+  const { loginAdmin, isAuthenticated, isAdmin } = useAuth()
   const navigate = useNavigate()
   const { theme } = useTheme()
   const isDark = theme === "dark"
+
+  // If already authenticated as admin, redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      console.log("Already authenticated as admin, redirecting to dashboard")
+      navigate("/admin/dashboard", { replace: true })
+    }
+  }, [isAuthenticated, isAdmin, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,15 +30,20 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true)
 
     try {
+      console.log("Attempting admin login with:", email)
       const success = await loginAdmin(email, password)
+      console.log("Admin login result:", success)
+
       if (success) {
-        navigate("/admin/dashboard")
+        console.log("Login successful, redirecting to dashboard")
+        // Navigate directly to dashboard after successful login
+        navigate("/admin/dashboard", { replace: true })
       } else {
         setError("Invalid admin credentials. Please try again.")
       }
     } catch (err) {
+      console.error("Admin login error:", err)
       setError("An error occurred during login. Please try again.")
-      console.error(err)
     } finally {
       setIsLoading(false)
     }
