@@ -53,8 +53,6 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
 
       if (data.success) {
         setSuccess(true)
-        // In a real app, you would poll the server to check if the payment was completed
-        // For now, we'll just simulate a successful payment after 3 seconds
         setTimeout(() => {
           onPaymentComplete()
         }, 3000)

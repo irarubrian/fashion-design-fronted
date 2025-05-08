@@ -23,7 +23,7 @@ const Register: React.FC = () => {
     e.preventDefault()
     setError("")
 
-    // Validate form
+   
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -32,10 +32,10 @@ const Register: React.FC = () => {
     setIsLoading(true)
 
     try {
-      // Include role in registration
+     
       const success = await register(username, email, password, role)
       if (success) {
-        // Redirect based on role
+       
         if (role === "admin") {
           navigate("/admin/dashboard")
         } else {

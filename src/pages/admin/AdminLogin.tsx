@@ -16,7 +16,7 @@ const AdminLogin: React.FC = () => {
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
-  // If already authenticated as admin, redirect to dashboard
+  
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       console.log("Already authenticated as admin, redirecting to dashboard")

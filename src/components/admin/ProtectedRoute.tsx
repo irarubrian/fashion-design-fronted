@@ -36,8 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     )
   }
 
-  // For admin routes, we'll check if the user is authenticated and has admin flag
-  // We're being more permissive here for testing purposes
+  
   if (isAuthenticated && (isAdmin || user?.isAdmin || user?.role === "admin")) {
     console.log("Access granted to admin route")
     return <>{children}</>

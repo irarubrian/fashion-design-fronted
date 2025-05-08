@@ -14,22 +14,22 @@ const SearchPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Filter states
+  
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<{min: number, max: number}>({min: 0, max: 300});
 
-  // Get unique filter options from products
+  
   const categories = [...new Set(products.map(product => product.category))];
   const colors = [...new Set(products.flatMap(product => product.colors))];
   const sizes = [...new Set(products.flatMap(product => product.sizes))];
 
-  // Filter and search products
+  
   useEffect(() => {
     let results = [...products];
 
-    // Filter by search query
+    
     if (searchQuery) {
       results = results.filter(product =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +38,7 @@ const SearchPage: React.FC = () => {
       );
     }
 
-    // Apply category filter
+    
     if (selectedCategories.length > 0) {
       results = results.filter(product => selectedCategories.includes(product.category));
     }

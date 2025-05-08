@@ -127,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Admin login response data:", data)
 
       if (data.success) {
-        // Ensure isAdmin is explicitly set to true
+        
         const adminUser = {
           ...data.user,
           isAdmin: true,
@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }
 
-  // Calculate isAdmin value - be more permissive for testing
+  
   const isAuthenticated = !!user
   const isAdmin = user?.isAdmin === true || user?.role === "admin"
 
