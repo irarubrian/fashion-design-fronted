@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://fashion-design-backend-0jh8.onrender.com/0',
+        target: 'https://fashion-design-backend-0jh8.onrender.com',
         changeOrigin: true,
         secure: false,
       },

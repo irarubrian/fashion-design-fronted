@@ -3,6 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { jwtDecode } from "jwt-decode"
+import { authAPI } from "../services/api" 
 
 interface User {
   id: number
@@ -47,14 +48,6 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
-// IMPORTANT: Hardcode the production URL to ensure it's correct
-// Remove any localhost references
-const API_BASE_URL = "https://fashion-design-backend-0jh8.onrender.com"
-const AUTH_URL = `${API_BASE_URL}/api/auth`
-
-console.log("Using API URL:", API_BASE_URL)
-console.log("Using Auth URL:", AUTH_URL)
-
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,15 +89,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return
       }
 
-      const response = await fetch(`${AUTH_URL}/check`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const { success, data } = await authAPI.checkAuth(token)
 
-      if (response.ok) {
-        const data = await response.json()
+      if (success) {
         setUser(data.user)
       } else {
         // If token is invalid, remove it
@@ -120,22 +107,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       console.log("Logging in with:", email)
-      console.log("Login URL:", `${AUTH_URL}/login`)
 
-      const response = await fetch(`${AUTH_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const { success, data } = await authAPI.login(email, password)
 
-      console.log("Login response status:", response.status)
-
-      const data = await response.json()
-      console.log("Login response data:", data)
-
-      if (!response.ok) {
+      if (!success) {
         console.error("Login error response:", data)
         return false
       }
@@ -155,21 +130,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loginAdmin = async (email: string, password: string) => {
     try {
-      const response = await fetch(`${AUTH_URL}/admin/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const { success, data } = await authAPI.adminLogin(email, password)
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("Admin login error response:", errorData)
+      if (!success) {
+        console.error("Admin login error response:", data)
         return false
       }
-
-      const data = await response.json()
 
       // Save token to localStorage
       if (data.token) {
@@ -187,22 +153,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (username: string, email: string, password: string, role = "customer") => {
     try {
       console.log("Registering user:", { username, email, role })
-      console.log("Registration URL:", `${AUTH_URL}/register`)
 
-      const response = await fetch(`${AUTH_URL}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, email, password, role }),
-      })
+      const { success, data } = await authAPI.register(username, email, password, role)
 
-      console.log("Registration response status:", response.status)
+      console.log("Registration response:", data)
 
-      const data = await response.json()
-      console.log("Registration response data:", data)
-
-      if (!response.ok) {
+      if (!success) {
         console.error("Registration error response:", data)
         return false
       }
