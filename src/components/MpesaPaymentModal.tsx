@@ -19,6 +19,9 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // If you have useAuth, uncomment this line
+  // const { user } = useAuth()
+
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,16 +30,31 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
     setError(null)
 
     try {
-      console.log("Sending M-PESA payment request:", { phone: phoneNumber, amount })
+      // Format phone number if needed
+      let formattedPhone = phoneNumber
+      if (phoneNumber.startsWith("0")) {
+        formattedPhone = "254" + phoneNumber.substring(1)
+      } else if (!phoneNumber.startsWith("254")) {
+        formattedPhone = "254" + phoneNumber
+      }
 
-      const response = await fetch("https://fashion-design-backend-0jh8.onrender.com/", {
+      console.log("Sending M-PESA payment request:", {
+        phone: formattedPhone,
+        amount,
+        // Include user_id if available
+        user_id: 1, // Replace with user?.id if you have useAuth
+      })
+
+      // FIXED: Correct endpoint URL with the proper path
+      const response = await fetch("https://fashion-design-backend-0jh8.onrender.com/mpesa/api/pay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          phone: phoneNumber,
-          amount: amount,
+          phone: formattedPhone,
+          amount: amount.toFixed(2), 
+          user_id: 1, 
         }),
         credentials: "include",
       })
@@ -83,7 +101,7 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
               </label>
               <input
                 type="tel"
-                placeholder="e.g. 0712345678"
+                placeholder="e.g. 0712345678 or 254712345678"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className={`w-full p-2 border ${
