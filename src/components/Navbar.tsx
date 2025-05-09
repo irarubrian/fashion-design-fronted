@@ -16,12 +16,11 @@ const Navbar: React.FC = () => {
   const { state: wishlist } = useWishlist()
   const { isAuthenticated, user, logout } = useAuth()
 
-  // Fix for TS error: user type may not have profilePicture property
+  
   type UserWithProfile = typeof user & { profilePicture?: string }
   const userWithProfile = user as UserWithProfile
 
-  // Fix for TS error: className does not exist on IntrinsicAttributes for ThemeToggle
-  // We will wrap ThemeToggle with a div to apply className instead of passing directly
+ 
   const { theme } = useTheme()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -31,13 +30,13 @@ const Navbar: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
 
-  // Handle profile image upload
+  
   const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       const imageUrl = URL.createObjectURL(file)
       setProfileImage(imageUrl)
-      // Here you would also want to upload the image to your backend or storage service
+      
     }
   }
 
@@ -62,7 +61,7 @@ const Navbar: React.FC = () => {
     setSearchQuery("")
   }
 
-  // Fix for line 138 error: add missing import for React.KeyboardEvent
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
       setShowUserMenu(false)

@@ -29,7 +29,7 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
     try {
       console.log("Sending M-PESA payment request:", { phone: phoneNumber, amount })
 
-      const response = await fetch("http://localhost:5000/mpesa/api/pay", {
+      const response = await fetch("https://fashion-design-backend-0jh8.onrender.com/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
