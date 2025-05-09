@@ -51,12 +51,12 @@ const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({ isOpen, onClose, 
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           phone: formattedPhone,
           amount: amount.toFixed(2), 
           user_id: 1, 
         }),
-        credentials: "include",
       })
 
       console.log("M-PESA response status:", response.status)
