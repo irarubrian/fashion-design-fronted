@@ -1,10 +1,11 @@
-// Create a new file in your project: src/utils/api.ts or similar location
+// Create a new file: src/utils/api.ts
 
 // IMPORTANT: Hardcode the production URL
 const API_BASE_URL = "https://fashion-design-backend-0jh8.onrender.com"
 
 // Helper function for making API requests
 export const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
+  // Build the full URL
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
 
   console.log(`Making API request to: ${url}`)

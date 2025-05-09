@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { jwtDecode } from "jwt-decode"
-import { authAPI } from "../services/api" 
+import { authAPI } from "../services/api" // Import the API utilities
 
 interface User {
   id: number
